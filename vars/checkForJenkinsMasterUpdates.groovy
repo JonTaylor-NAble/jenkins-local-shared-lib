@@ -10,18 +10,14 @@
 // Returns: 
 //         [boolean] a boolean value where true indicates that the jenkins master pod properties are in the plan to be changed.
 
-boolean call(planFile, optionalFolderPath){
+boolean call(planFilePath){
 
     boolean enhancedWarning = false;
     def triggeringChange;
     def output;
 
     // Call 'terraform show' on plan file with JSON output flag and capture output log as a file
-    if (optionalFolderPath){
-        sh 'terraform -chdir=' + optionalFolderPath + ' show -json ' + planFile + ' > tfPlan.log'
-    } else {
-        sh 'terraform show -json ' + plan + ' > tfPlan.log'
-    }
+    sh 'terraform show -json ' + plan + ' > tfPlan.log'
     
     // Read the file as a string and split on newlines to seperate any additional contents
     def resultString = readFile(file: 'tfPlan.log');
