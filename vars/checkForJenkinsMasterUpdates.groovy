@@ -17,7 +17,7 @@ boolean call(planFilePath){
     def output;
 
     // Call 'terraform show' on plan file with JSON output flag and capture output log as a file
-    sh 'terraform show -json ' + plan + ' > tfPlan.log'
+    sh 'terraform show -json ' + planFilePath + ' > tfPlan.log'
     
     // Read the file as a string and split on newlines to seperate any additional contents
     def resultString = readFile(file: 'tfPlan.log');
