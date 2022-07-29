@@ -7,7 +7,7 @@
 
 boolean checkForJenkinsMasterUpdates(planFilePath){
 
-// Function to determine if a provided terraform plan file has planned changes to a Jenkins resource yaml in the spec > master tree; as changes here would require a pod restart as per the Jenkins CRD schema:
+// Function to determine if a provided terraform plan file has planned changes to a Jenkins resource yaml that would trigger a pod restart as per the Jenkins CRD schema:
 // https://jenkinsci.github.io/kubernetes-operator/docs/getting-started/latest/schema/
 //
 // Plugin Dependencies: 
@@ -64,16 +64,38 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
 
 
                 if (manifestBefore.kind == 'Jenkins'){
-                if (manifestBefore.spec && manifestBefore.spec.master){
-                    def compBefore = manifestBefore.spec.master;
-                    def compAfter = manifestAfter.spec.master;
+                    if (manifestBefore.spec){
+                        //Check if there have been changes in the 'spec.master.*' node of the resource.
+                        if (manifestBefore.spec.master){
 
-                    // If before and after manifests are not identical, 
-                    if (compBefore != compAfter){
-                    enhancedWarning = true;
-                    triggeringChange = compAfter;
-                    } 
-                }
+                            def compMasterBefore = manifestBefore.spec.master;
+                            def compMasterAfter = manifestAfter.spec.master;
+
+                            // If before and after master node manifests are not identical, 
+                            if (compMasterBefore != compMasterAfter){
+                            enhancedWarning = true;
+                            triggeringChange = compMasterAfter;
+                            } 
+
+                        }
+
+                        //Check if a seed job has been removed/renamed as this will also trigger a restart
+                        if (manifestBefore.spec.seedJobs){
+                            for (def seedJobBefore in manifestBefore.spec.seedJobs){
+                                def found = false;
+                                for (def seedJobAfter in manifestAfter.spec.seedJobs){
+                                    if (seedJobBefore.id == seedJobAfter.id){
+                                        found = true;
+                                        break
+                                    }
+                                }
+                                if (!found){
+                                    enhancedWarning = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 } 
             }
             }
