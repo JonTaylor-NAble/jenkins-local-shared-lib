@@ -51,9 +51,12 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
                 def manifestBeforeStr = resource_change.change.before.manifest;
                 def manifestAfterStr = resource_change.change.after.manifest;
 
+                def manifestBefore;
+                def manifestAfter;
+
                 try{
-                    def manifestBefore = readJSON text:manifestBeforeStr;
-                    def manifestAfter = readJSON text:manifestAfterStr;
+                    manifestBefore = readJSON text:manifestBeforeStr;
+                    manifestAfter = readJSON text:manifestAfterStr;
                 } catch (Exception ex){
                     echo "Invalid JSON in resource_change manifests"
                     return false;
