@@ -127,7 +127,7 @@ String getSeedJobTemplate(){
 
     for (repoList in repoLists){
 
-        def data = readYaml file: repo.path;
+        def data = readYaml file: repoList.path;
         for (repo in data.repos){
             def dslScript = buildTemplate(repo);
             jobDefinitions.add(dslScript);
