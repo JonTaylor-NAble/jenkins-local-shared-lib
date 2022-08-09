@@ -121,20 +121,6 @@ String getSeedJobTemplate(){
 // Returns: 
 //        TODO: Output description
 
-    def repoLists = findFiles(glob: 'seed/jobs/**/repoList.yaml');
-
-    def jobDefinitions = []; 
-
-    for (repoList in repoLists){
-
-        def data = readYaml file: repoList.path;
-        for (repo in data.repos){
-            def dslScript = buildTemplate(repo);
-            jobDefinitions.add(dslScript);
-        }
-        
-    }
-
     def buildTemplate = { repo ->
 
         def template = """
@@ -197,6 +183,20 @@ String getSeedJobTemplate(){
 
         return template
     } 
+
+    def repoLists = findFiles(glob: 'seed/jobs/**/repoList.yaml');
+
+    def jobDefinitions = []; 
+
+    for (repoList in repoLists){
+
+        def data = readYaml file: repoList.path;
+        for (repo in data.repos){
+            def dslScript = buildTemplate(repo);
+            jobDefinitions.add(dslScript);
+        }
+        
+    }
 
     dslScript = jobDefinitions.join('')
     return dslScript
