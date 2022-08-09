@@ -121,7 +121,13 @@ String getSeedJobTemplate(){
 // Returns: 
 //        TODO: Output description
 
-    return """
+    def repos = new FileNameFinder().getFileNames('seed/jobs/**/repos.yaml')
+
+    for (repo in repos){
+        println repo
+    }
+
+    def template = """
         multibranchPipelineJob('terraform-pipeline') {
             branchSources {
                     branchSource {
@@ -177,6 +183,8 @@ String getSeedJobTemplate(){
                 }
             }
         }"""
+
+        jobDsl scriptText: template // Run Job DSL
 }
 
 //If this library is not loaded 'implicitly', uncomment the line below:
