@@ -121,7 +121,7 @@ String getSeedJobTemplate(){
 // Returns: 
 //        TODO: Output description
 
-    return "multibranchPipelineJob('terraform-pipeline') {
+    return """multibranchPipelineJob('terraform-pipeline') {
     branchSources {
             branchSource {
                 source {
@@ -175,7 +175,7 @@ String getSeedJobTemplate(){
         }
         }
     }
-    }"
+    }"""
 }
 
 //If this library is not loaded 'implicitly', uncomment the line below:
