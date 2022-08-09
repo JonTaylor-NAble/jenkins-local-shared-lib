@@ -121,21 +121,31 @@ String getSeedJobTemplate(){
 // Returns: 
 //        TODO: Output description
 
-    def repos = findFiles(glob: 'seed/jobs/**/repos.yaml'); 
+    def repoLists = findFiles(glob: 'seed/jobs/**/repoList.yaml');
 
-    for (repo in repos){
-        println repo.path
+    def jobDefinitions = []; 
+
+    for (repoList in repoLists){
+
+        def data = readYaml file: repo.path;
+        for (repo in data.repos){
+            def dslScript = buildTemplate(repo);
+            jobDefinitions.add(dslScript);
+        }
+        
     }
 
-    def template = """
-        multibranchPipelineJob('terraform-pipeline') {
+    String buildTemplate(repo){
+
+        def template = """
+        multibranchPipelineJob('""" + repo.pipelineName + """') {
             branchSources {
                     branchSource {
                         source {
                             github {
-                                id('terraform-pipeline')
-                                repoOwner('JonTaylor-NAble')
-                                repository('jenkins-local-pipelines')
+                                id('""" + repo.pipelineName + """')
+                                repoOwner('""" + repo.repoOwner + """')
+                                repository('""" + repo.repository + """')
                                 credentialsId('github-account')
                                 buildOriginBranch(true)
                                 buildOriginPRHead(true)
@@ -164,7 +174,7 @@ String getSeedJobTemplate(){
 
             factory {
                 workflowBranchProjectFactory {
-                scriptPath('cicd/pipelines/terraform/terraform.groovy')
+                scriptPath('""" + repo.scriptPath + """')
                 }
             }
 
@@ -182,9 +192,14 @@ String getSeedJobTemplate(){
                 }
                 }
             }
-        }"""
+        }
+        """
 
         return template
+    } 
+
+    dslScript = jobDefinitions.join('')
+    return dslScript
 }
 
 //If this library is not loaded 'implicitly', uncomment the line below:
