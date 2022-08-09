@@ -121,12 +121,10 @@ String getSeedJobTemplate(){
 // Returns: 
 //        TODO: Output description
 
-    sh 'ls'
-
-    def repos = new FileNameFinder().getFileNames(WORKSPACE, 'seed/jobs/**/repos.yaml')
+    def repos = findFiles(glob: 'seed/jobs/**/repos.yaml'); 
 
     for (repo in repos){
-        println repo
+        println repo.path
     }
 
     def template = """
