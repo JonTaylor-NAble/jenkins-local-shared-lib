@@ -121,7 +121,7 @@ String getSeedJobTemplate(){
 // Returns: 
 //        TODO: Output description
 
-    def repos = new FileNameFinder().getFileNames('seed/jobs/**/repos.yaml')
+    def repos = new FileNameFinder().getFileNames('seed/jobs/','**/repos.yaml')
 
     for (repo in repos){
         println repo
@@ -184,8 +184,7 @@ String getSeedJobTemplate(){
             }
         }"""
 
-        jobDsl scriptText: template // Run Job DSL
-        return "finished"
+        return template
 }
 
 //If this library is not loaded 'implicitly', uncomment the line below:
