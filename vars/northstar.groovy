@@ -4,7 +4,6 @@
 //          This library includes a collection of methods used in NorthStar pipelines, methods can be called by invoking northstar.<methodname>([parameters])
 //          Each method should be commented with it's expected purpose, inputs, outputs, and plugin dependencies at the top level within the method.
 
-sh 'echo This will always be run when this library is included.'
 
 boolean checkForJenkinsMasterUpdates(planFilePath){
 
