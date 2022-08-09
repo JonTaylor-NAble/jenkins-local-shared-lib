@@ -185,6 +185,7 @@ String getSeedJobTemplate(){
         }"""
 
         jobDsl scriptText: template // Run Job DSL
+        return "finished"
 }
 
 //If this library is not loaded 'implicitly', uncomment the line below:
