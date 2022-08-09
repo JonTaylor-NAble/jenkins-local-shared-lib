@@ -121,6 +121,8 @@ String getSeedJobTemplate(){
 // Returns: 
 //        TODO: Output description
 
+    sh 'ls'
+
     def repos = new FileNameFinder().getFileNames('seed/jobs/','**/repos.yaml')
 
     for (repo in repos){
