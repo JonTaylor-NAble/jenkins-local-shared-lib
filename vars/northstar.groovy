@@ -108,7 +108,7 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
     return enhancedWarning;
 }
 
-Object buildSeedJobs(seedJobs){
+String getSeedJobTemplate(){
 
 // TODO: Function to build seed jobs from input
 //
@@ -121,7 +121,7 @@ Object buildSeedJobs(seedJobs){
 // Returns: 
 //        TODO: Output description
 
-    multibranchPipelineJob('terraform-pipeline') {
+    return "multibranchPipelineJob('terraform-pipeline') {
     branchSources {
             branchSource {
                 source {
@@ -175,7 +175,7 @@ Object buildSeedJobs(seedJobs){
         }
         }
     }
-    }
+    }"
 }
 
 //If this library is not loaded 'implicitly', uncomment the line below:
