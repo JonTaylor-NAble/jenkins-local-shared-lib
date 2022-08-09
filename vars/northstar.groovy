@@ -135,7 +135,7 @@ String getSeedJobTemplate(){
         
     }
 
-    String buildTemplate(repo){
+    def buildTemplate = { def repo ->
 
         def template = """
         multibranchPipelineJob('""" + repo.pipelineName + """') {
