@@ -203,13 +203,10 @@ String getSeedJobTemplate(yamlPath){
         }
 
         return repo;
-
     }
 
     def repoLists = findFiles(glob: yamlPath);
-
     def jobDefinitions = []; 
-
     for (repoList in repoLists){
 
         def data = readYaml file: repoList.path;
@@ -223,9 +220,7 @@ String getSeedJobTemplate(yamlPath){
                 sh 'println "' + repoList.path + " invalid - " + repoData.validityReason + '"';
                 continue;
             }
-
-        }
-        
+        }  
     }
 
     dslScript = jobDefinitions.join('')
