@@ -182,7 +182,7 @@ String getSeedJobTemplate(yamlPath){
 
     def defaultValues = [
         orphanedItemStrategyDaysToKeep: 30,
-        orphanedItemStrategyNumToKeep: 30
+        orphanedItemStrategyNumToKeep: 30,
         branchDiscoveryTraitStrategyId: 1,
         originPullRequestTraitStrategyId: 2,
         deleteUntrackedNestedRepositories: true
