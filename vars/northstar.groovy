@@ -19,7 +19,6 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
 // Returns: 
 //        [boolean] a boolean value where true indicates that the jenkins master pod properties are in the plan to be changed.
 
-
     boolean enhancedWarning = false;
     def triggeringChange;
     def output;
@@ -47,10 +46,8 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
             if (resource_change.change.actions.indexOf('update') > -1){
 
                 //Read the before and after manifests for the master pod properties from JSON into Maps - and compare maps for any changes.
-
                 def manifestBeforeStr = resource_change.change.before.manifest;
                 def manifestAfterStr = resource_change.change.after.manifest;
-
                 def manifestBefore;
                 def manifestAfter;
 
@@ -61,7 +58,6 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
                     echo "Invalid JSON in resource_change manifests"
                     return false;
                 }
-
 
                 if (manifestBefore.kind == 'Jenkins'){
                     if (manifestBefore.spec){
@@ -108,7 +104,7 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
     return enhancedWarning;
 }
 
-String getSeedJobTemplate(){
+String getSeedJobTemplate(yamlPath){
 
 // TODO: Function to build seed jobs from input
 //
@@ -153,8 +149,8 @@ String getSeedJobTemplate(){
 
             orphanedItemStrategy {
                 discardOldItems {
-                daysToKeep(30)
-                numToKeep(30)
+                daysToKeep(""" + repo.orphanedItemStrategyDaysToKeep + """)
+                numToKeep(""" + repo.orphanedItemStrategyNumToKeep + """)
                 }
             }
 
@@ -167,14 +163,14 @@ String getSeedJobTemplate(){
             configure {
                 def traits = it / sources / data / 'jenkins.branch.BranchSource' / source / traits
                 traits << 'org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait' {
-                strategyId(1) // Enable support for discovering github branches on this repo
+                strategyId(""" + repo.branchDiscoveryTraitStrategyId + """) // Enable support for discovering github branches on this repo
                 }
                 traits << 'org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait' {
-                strategyId(2) // Enable support for discovering PullRequests to this github repo
+                strategyId(""" + repo.originPullRequestTraitStrategyId + """) // Enable support for discovering PullRequests to this github repo
                 }
                 traits << 'jenkins.plugins.git.traits.CleanBeforeCheckoutTrait' {
                 extension(class: 'hudson.plugins.git.extensions.impl.CleanBeforeCheckout') {
-                    deleteUntrackedNestedRepositories(true)
+                    deleteUntrackedNestedRepositories(""" + repo.deleteUntrackedNestedRepositories + """)
                 }
                 }
             }
@@ -184,7 +180,33 @@ String getSeedJobTemplate(){
         return template
     } 
 
-    def repoLists = findFiles(glob: 'seed/jobs/**/repoList.yaml');
+    def defaultValues = [
+        orphanedItemStrategyDaysToKeep: 30,
+        orphanedItemStrategyNumToKeep: 30
+        branchDiscoveryTraitStrategyId: 1,
+        originPullRequestTraitStrategyId: 2,
+        deleteUntrackedNestedRepositories: true
+    ]
+
+    def populateRepoDefaults = { repo ->
+        
+        repo.validity = true;
+        if (!repo.pipelineName || !repo.repoOwner || !repo.repository || !repo.scriptPath){
+            repo.validity = false;
+            repo.validityReason = 'Missing required parameters pipelineName, repoOwner, repository, scriptPath'
+        }
+
+        for (item in defaultValues){
+            if(!repo[item.key]){
+                repo[item.key] = item.value;
+            }
+        }
+
+        return repo;
+
+    }
+
+    def repoLists = findFiles(glob: yamlPath);
 
     def jobDefinitions = []; 
 
@@ -192,8 +214,16 @@ String getSeedJobTemplate(){
 
         def data = readYaml file: repoList.path;
         for (repo in data.repos){
-            def dslScript = buildTemplate(repo);
-            jobDefinitions.add(dslScript);
+            repoData = populateRepoDefaults(repo);
+
+            if (repoData.validity){
+                def dslScript = buildTemplate(repoData);
+                jobDefinitions.add(dslScript);
+            } else {
+                sh 'println "' + repoList.path + " invalid - " + repoData.validityReason + '"';
+                continue;
+            }
+
         }
         
     }
