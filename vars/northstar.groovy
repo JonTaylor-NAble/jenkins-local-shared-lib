@@ -100,25 +100,29 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
     } else {
         echo "Invalid TF Plan JSON"
     }
-
     return enhancedWarning;
 }
 
-String getSeedJobTemplate(yamlPath){
 
-// TODO: Function to build seed jobs from input
+String getSeedJobDSL(yamlPath){
+
+// Function to build seed job DSL from template, this function can be called as part of a pipeline to generate Job DSL scripts from 
+// the template below - hydrated with values defined in the yaml files passed in.
 //
 // Plugin Dependencies: 
-//        TODO: Plugin dependencies
+//        pipeline-utility-steps - used for the findFiles and readYaml methods
 //
 // Inputs:
-//        TODO: Input descriptions
+//        [String yamlPath] - ant style file path to location of one or multiple yaml files with pipeline definitions, 
+//                            supports wildcard filepaths to find multiple files - or individual files with multiple pipeline definitions
+//                            eg. 'seed/jobs/**/repoList.yaml'  
 //
 // Returns: 
-//        TODO: Output description
+//        [String] - returns the DSL script generated for each pipeline defined in the yaml files as a string.
 
     def buildTemplate = { repo ->
 
+        //Core template to define the pipeline, hydrated by values from passed in 'repo' Map
         def template = """
         multibranchPipelineJob('""" + repo.pipelineName + """') {
             branchSources {
@@ -180,6 +184,7 @@ String getSeedJobTemplate(yamlPath){
         return template
     } 
 
+    //Default values for optional parameters - if these keys aren't present in the yaml definition the values here will be used instead.
     def defaultValues = [
         orphanedItemStrategyDaysToKeep: 30,
         orphanedItemStrategyNumToKeep: 30,
@@ -190,12 +195,14 @@ String getSeedJobTemplate(yamlPath){
 
     def populateRepoDefaults = { repo ->
         
+        //Check for minimum required values of pipelineName, repoOwner, repository and scriptPath - if any are missing set validity of repo to false for error handling.
         repo.validity = true;
         if (!repo.pipelineName || !repo.repoOwner || !repo.repository || !repo.scriptPath){
             repo.validity = false;
             repo.validityReason = 'Missing required parameters pipelineName, repoOwner, repository, scriptPath'
         }
 
+        //Replace unspecified parameters with values from default values map
         for (item in defaultValues){
             if(!repo[item.key]){
                 repo[item.key] = item.value;
@@ -205,6 +212,7 @@ String getSeedJobTemplate(yamlPath){
         return repo;
     }
 
+    //Search for yaml files matching input file path, read the yaml files and generate DSL script for each defined repo in each file.
     def repoLists = findFiles(glob: yamlPath);
     def jobDefinitions = []; 
     for (repoList in repoLists){
@@ -217,12 +225,14 @@ String getSeedJobTemplate(yamlPath){
                 def dslScript = buildTemplate(repoData);
                 jobDefinitions.add(dslScript);
             } else {
+                //Skip over invalid repo entries, log issue to console output
                 sh 'println "' + repoList.path + " invalid - " + repoData.validityReason + '"';
                 continue;
             }
         }  
     }
 
+    //Concatenate all generated Job DSL scripts into a single script and return.
     dslScript = jobDefinitions.join('')
     return dslScript
 }
