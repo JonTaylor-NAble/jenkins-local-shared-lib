@@ -116,7 +116,6 @@ String getSeedJobDSL(yamlPath){
 //        [String yamlPath] - ant style file path to location of one or multiple yaml files with pipeline definitions, 
 //                            supports wildcard filepaths to find multiple files - or individual files with multiple pipeline definitions
 //                            eg. 'seed/jobs/**/repoList.yaml'  
-//
 // Returns: 
 //        [String] - returns the DSL script generated for each pipeline defined in the yaml files as a string.
 
@@ -226,7 +225,7 @@ String getSeedJobDSL(yamlPath){
                 jobDefinitions.add(dslScript);
             } else {
                 //Skip over invalid repo entries, log issue to console output
-                sh 'println "' + repoList.path + " invalid - " + repoData.validityReason + '"';
+                sh 'echo "' + repoList.path + " invalid - " + repoData.validityReason + '"';
                 continue;
             }
         }  
