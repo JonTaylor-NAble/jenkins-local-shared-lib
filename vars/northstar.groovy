@@ -144,7 +144,7 @@ String getSeedJobDSL(yamlPath){
                                     suppressAutomaticTriggering {
                                         strategy('INDEXING')
                                     }
-                                    triggeredBranchesRegex('.*')
+                                    triggeredBranchesRegex{'.*'}
                                 }
                             }
                         }
