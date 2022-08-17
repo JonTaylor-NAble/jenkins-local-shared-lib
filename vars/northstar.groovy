@@ -238,4 +238,4 @@ String getSeedJobDSL(yamlPath){
 }
 
 //If this library is not loaded 'implicitly', uncomment the line below:
-//return this
+return this
