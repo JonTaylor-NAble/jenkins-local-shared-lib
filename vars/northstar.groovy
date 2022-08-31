@@ -153,6 +153,21 @@ String getSeedJobDSL(yamlPath){
     for (repoList in repoLists){
 
         def data = readYaml file: repoList.path;
+
+        for (folder in data.folders){
+
+            buildLists(folderData);
+
+            if (folderData.validity){
+                def dslScript = buildTemplate(folderData);
+                jobDefinitions.add(dslScript);
+            } else {
+                //Skip over invalid repo entries, log issue to console output
+                echo(repoList.path + " invalid - " + folderData.validityReason);
+                continue;
+            }
+        }  
+
         for (repo in data.repos){
             repoData = populateRepoDefaults(repo);
             buildLists(repoData);
@@ -201,6 +216,24 @@ def buildLists (data){
         data.parametersText = parametersArray.join('\n')
     } else {
         data.parametersText = '';
+    }
+
+    if (data.buildClouds){
+        def cloudArray = []
+        for (buildCloud in data.buildClouds){
+            def buildCloudString = northstarTemplate.buildCloudTemplate(buildCloud)
+            cloudArray.add(buildCloudString)
+        }
+        data.buildCloudsText = cloudArray.join('\n')
+    }
+
+    else if (data.permissions){
+        def permissionsArray = []
+        for (permission in data.permissions){
+            def permissionString = northstarTemplate.permissionTemplate(permission)
+            permissionsArray.add(permissionString)
+        }
+        data.permissionsText = permissionsArray.join('\n')
     }
 
     return data;

@@ -98,7 +98,7 @@ def folderTemplate(data) {
         configure{
             it / 'properties' /'org.csanchez.jenkins.plugins.kubernetes.KubernetesFolderProperty'(plugin:"kubernetes@1.19.0") {
                 'permittedClouds' {
-                    'string' '""" + data.buildCloud + """'
+                    """ + data.buildCloudsText + """
                 }
             }
         }
@@ -110,6 +110,36 @@ def folderTemplate(data) {
 def parameterTemplate(data) {
     def template = data.type + "('" + data.name + "','" + data.defaultValue + "','" + data.description + "')"
     return template
+}
+
+def buildCloudTemplate(cloud) {
+    def template = "'string' '" + data.cloud + "'"
+    return template
+}
+
+def permissionAccessLevels = [
+    "readOnly": """
+                'hudson.model.Item.Read',
+                'hudson.model.View.Read'
+                """,
+    "fullAccess": """
+                'hudson.model.Item.Build',
+                'hudson.model.Item.Cancel',
+                'hudson.model.Item.Configure',
+                'hudson.model.Item.Discover',
+                'hudson.model.Item.Read',
+                'hudson.model.Item.Workspace',
+                'hudson.model.Run.Replay',
+                'hudson.model.View.Read'
+                """
+]
+
+def permissionTemplate(data){
+    def template = """
+    permissions('""" + data.roleName + """', [ """ +
+    permissionAccessLevels[data.accessLevel] +
+    """])
+    """
 }
 
 return this;
