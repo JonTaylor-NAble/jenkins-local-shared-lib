@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
 
+@Field
 def multibranchTemplate = """
 multibranchPipelineJob('$pipelineName') {
     branchSources {
@@ -55,7 +56,7 @@ multibranchPipelineJob('$pipelineName') {
     }
 }
 """
-
+@Field
 def pipelineTemplate = """
 pipelineJob('$pipelineName'){
     parameters{
@@ -81,7 +82,7 @@ pipelineJob('$pipelineName'){
     }
 }
 """
-
+@Field
 def folderTemplate = """
 folder('$folderName'){
     description('$description')
@@ -97,7 +98,7 @@ folder('$folderName'){
     }
 }
 """
-
+@Field
 def parameterTemplate = """
 $type('$name','$defaultValue','$description')
 """
