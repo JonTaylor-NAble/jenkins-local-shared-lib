@@ -113,7 +113,7 @@ def parameterTemplate(data) {
 }
 
 def buildCloudTemplate(cloud) {
-    def template = "'string' '" + data.cloud + "'"
+    def template = "'string' '" + cloud + "'"
     return template
 }
 
