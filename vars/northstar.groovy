@@ -113,7 +113,7 @@ String getSeedJobDSL(yamlPath){
 // Inputs:
 //        [String yamlPath] - ant style file path to location of one or multiple yaml files with pipeline definitions, 
 //                            supports wildcard filepaths to find multiple files - or individual files with multiple pipeline definitions
-//                            eg. 'seed/jobs/**/repoList.yaml'  
+//                            eg. 'seed/jobs/**/seed.yaml'  
 // Returns: 
 //        [String] - returns the DSL script generated for each pipeline defined in the yaml files as a string.
     
@@ -147,12 +147,12 @@ String getSeedJobDSL(yamlPath){
         return repo;
     }
 
-    //Search for yaml files matching input file path, read the yaml files and generate DSL script for each defined repo in each file.
-    def repoLists = findFiles(glob: yamlPath);
+    //Search for yaml files matching input file path, read the yaml files and generate DSL script for each defined item in each file.
+    def seedLists = findFiles(glob: yamlPath);
     def jobDefinitions = []; 
-    for (repoList in repoLists){
+    for (seedList in seedLists){
 
-        def data = readYaml file: repoList.path;
+        def data = readYaml file: seedList.path;
 
         for (folderData in data.folders){
 
@@ -164,7 +164,7 @@ String getSeedJobDSL(yamlPath){
                 jobDefinitions.add(dslScript);
             } else {
                 //Skip over invalid repo entries, log issue to console output
-                echo(repoList.path + " invalid - " + folderData.validityReason);
+                echo(seedList.path + " invalid - " + folderData.validityReason);
                 continue;
             }
         }  
@@ -178,7 +178,7 @@ String getSeedJobDSL(yamlPath){
                 jobDefinitions.add(dslScript);
             } else {
                 //Skip over invalid repo entries, log issue to console output
-                echo(repoList.path + " invalid - " + repoData.validityReason);
+                echo(seedList.path + " invalid - " + repoData.validityReason);
                 continue;
             }
         }  
