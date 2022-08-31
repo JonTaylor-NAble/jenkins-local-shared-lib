@@ -47,7 +47,7 @@ multibranchPipelineJob('<% print pipelineName %>') {
             strategyId(<% print branchDiscoveryTraitStrategyId %>) // Enable support for discovering github branches on this repo
         }
         traits << 'org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait' {
-            strategyId(<% print repo.originPullRequestTraitStrategyId %>) // Enable support for discovering PullRequests to this github repo
+            strategyId(<% print originPullRequestTraitStrategyId %>) // Enable support for discovering PullRequests to this github repo
         }
         traits << 'jenkins.plugins.git.traits.CleanBeforeCheckoutTrait' {
             extension(class: 'hudson.plugins.git.extensions.impl.CleanBeforeCheckout') {
