@@ -68,7 +68,7 @@ pipelineJob('<% print pipelineName %>'){
             scm{
                 git{
                     remote{
-                        github('<% print repoOwner %>/<% print repoName %>', 'https')
+                        github('<% print repoOwner %>/<% print repository %>', 'https')
                         credentials('<% print githubCredentials %>')
                     }
                     branch('<% print branch %>')
