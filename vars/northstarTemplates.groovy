@@ -1,3 +1,5 @@
+#!/usr/bin/env groovy
+
 def multibranchTemplate = """
 multibranchPipelineJob('$pipelineName') {
     branchSources {
@@ -99,3 +101,5 @@ folder('$folderName'){
 def parameterTemplate = """
 $type('$name','$defaultValue','$description')
 """
+
+return this;
