@@ -232,7 +232,7 @@ def buildLists (data){
         data.buildCloudsText = cloudArray.join('\n')
     }
 
-    else if (data.permissions){
+    if (data.permissions){
         def permissionsArray = []
         for (permission in data.permissions){
             echo(permission.toString())
