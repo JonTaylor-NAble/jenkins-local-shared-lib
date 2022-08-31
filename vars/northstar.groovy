@@ -179,13 +179,6 @@ def buildTemplate(data){
 
     def engine = new groovy.text.GStringTemplateEngine()
 
-    data.properties.each { prop, val ->
-        if (!(val instanceof String)){
-            echo('Removing something')
-            val = '';
-        }
-    }
-
     def template
 
     if (data.type == 'multibranchPipelineJob'){
