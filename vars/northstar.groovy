@@ -3,7 +3,6 @@
 // Library: 
 //          This library includes a collection of methods used in NorthStar pipelines, methods can be called by invoking northstar.<methodname>([parameters])
 //          Each method should be commented with it's expected purpose, inputs, outputs, and plugin dependencies at the top level within the method.
-import com.cloudbees.groovy.cps.NonCPS
 
 boolean checkForJenkinsMasterUpdates(planFilePath){
 
@@ -174,37 +173,31 @@ String getSeedJobDSL(yamlPath){
     return dslScript
 }
 
-@NonCPS
 def buildTemplate(data){
 
-    def engine = new groovy.text.GStringTemplateEngine()
     echo(data.toString())
+
     def template
 
     if (data.type == 'multibranchPipelineJob'){
-        template = engine.createTemplate(northstarTemplates.multibranchTemplate)
+        template = northstarTemplates.multibranchTemplate(data)
     } else if (data.type == 'pipelineJob'){
-        template = engine.createTemplate(northstarTemplates.pipelineTemplate)
+        template = northstarTemplates.pipelineTemplate(data)
     } else if (data.type == 'folder'){
-        template = engine.createTemplate(northstarTemplates.folderTemplate)
+        template = northstarTemplates.folderTemplate(data)
     } else {
         return null;
     }
 
-    template = template.make(data).toString();
-
     return template
 } 
 
-@NonCPS
 def buildLists (data){
-
-    def engine = new groovy.text.GStringTemplateEngine()
 
     if (data.parameters){
         def parametersArray = [];
         for (parameter in data.parameters){
-            def parameterString = engine.createTemplate(northstarTemplates.parameterTemplate).make(parameter).toString();
+            def parameterString = northstarTemplates.parameterTemplate(parameter);
             parametersArray.add(parameterString);
         }
         data.parametersText = parametersArray.join('\n')

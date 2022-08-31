@@ -1,107 +1,117 @@
 #!/usr/bin/env groovy
-import groovy.transform.Field
 
-@Field
-def multibranchTemplate = """
-multibranchPipelineJob('<% print pipelineName %>') {
-    branchSources {
-            branchSource {
-                source {
-                    github {
-                        id('<% print pipelineName %>')
-                        repoOwner('<% print repoOwner %>')
-                        repository('<% print repository %>')
-                        credentialsId('<% print githubCredentials %>')
-                        buildOriginBranch(true)
-                        buildOriginPRHead(true)
-                        repositoryUrl('')
-                        configuredByUrl(false)
+def multibranchTemplate(data) {
+    def template = """
+    multibranchPipelineJob('""" + data.pipelineName + """') {
+        branchSources {
+                branchSource {
+                    source {
+                        github {
+                            id('""" + data.pipelineName + """')
+                            repoOwner('""" + data.repoOwner + """')
+                            repository('""" + data.repository + """')
+                            credentialsId('""" + data.githubCredentials + """')
+                            buildOriginBranch(true)
+                            buildOriginPRHead(true)
+                            repositoryUrl('')
+                            configuredByUrl(false)
+                        }
                     }
-                }
-                strategy {
-                allBranchesSame {
-                        props {
-                            suppressAutomaticTriggering {
-                                strategy('INDEXING')
-                                triggeredBranchesRegex('.*')
+                    strategy {
+                    allBranchesSame {
+                            props {
+                                suppressAutomaticTriggering {
+                                    strategy('INDEXING')
+                                    triggeredBranchesRegex('.*')
+                                }
                             }
                         }
                     }
                 }
-            }
-    }
-    orphanedItemStrategy {
-        discardOldItems {
-        daysToKeep(<% print orphanedItemStrategyDaysToKeep %>)
-        numToKeep(<% print orphanedItemStrategyNumToKeep %>)
         }
-    }
-    factory {
-        workflowBranchProjectFactory {
-        scriptPath(<% print scriptPath %>)
-        }
-    }
-    configure {
-        def traits = it / sources / data / 'jenkins.branch.BranchSource' / source / traits
-        traits << 'org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait' {
-            strategyId(<% print branchDiscoveryTraitStrategyId %>) // Enable support for discovering github branches on this repo
-        }
-        traits << 'org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait' {
-            strategyId(<% print originPullRequestTraitStrategyId %>) // Enable support for discovering PullRequests to this github repo
-        }
-        traits << 'jenkins.plugins.git.traits.CleanBeforeCheckoutTrait' {
-            extension(class: 'hudson.plugins.git.extensions.impl.CleanBeforeCheckout') {
-                deleteUntrackedNestedRepositories(<% print deleteUntrackedNestedRepositories %>)
+        orphanedItemStrategy {
+            discardOldItems {
+            daysToKeep(""" + data.orphanedItemStrategyDaysToKeep + """)
+            numToKeep(""" + data.orphanedItemStrategyNumToKeep + """)
             }
         }
-    }
-}
-"""
-@Field
-def pipelineTemplate = """
-pipelineJob('<% print pipelineName %>'){
-    parameters{
-        <% print parametersText %>
-    }
-    definition{
-        cpsScm{
-            scm{
-                git{
-                    remote{
-                        github('<% print repoOwner %>/<% print repository %>', 'https')
-                        credentials('<% print githubCredentials %>')
-                    }
-                    branch('<% print branch %>')
+        factory {
+            workflowBranchProjectFactory {
+            scriptPath(""" + data.scriptPath + """)
+            }
+        }
+        configure {
+            def traits = it / sources / data / 'jenkins.branch.BranchSource' / source / traits
+            traits << 'org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait' {
+                strategyId(""" + data.branchDiscoveryTraitStrategyId + """) // Enable support for discovering github branches on this repo
+            }
+            traits << 'org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait' {
+                strategyId(""" + data.originPullRequestTraitStrategyId + """) // Enable support for discovering PullRequests to this github repo
+            }
+            traits << 'jenkins.plugins.git.traits.CleanBeforeCheckoutTrait' {
+                extension(class: 'hudson.plugins.git.extensions.impl.CleanBeforeCheckout') {
+                    deleteUntrackedNestedRepositories(""" + data.deleteUntrackedNestedRepositories + """)
                 }
             }
-            scriptPath('<% print scriptPath %>')
         }
     }
-    logRotator {
-        daysToKeep(<% print logRotatorDaysToKeep %>)
-        numToKeep(<% print logRotatorNumToKeep %>)
-    }
+    """
+    return template;
 }
-"""
-@Field
-def folderTemplate = """
-folder('<% print folderName %>'){
-    description('<% print description %>')
-    authorization{
-        <% print permissionsText %>
+
+def pipelineTemplate(data) {
+    def template = """
+    pipelineJob('""" + data.pipelineName + """'){
+        parameters{
+            """ + data.parametersText + """
+        }
+        definition{
+            cpsScm{
+                scm{
+                    git{
+                        remote{
+                            github('""" + data.repoOwner + """/""" + data.repository + """', 'https')
+                            credentials('""" + data.githubCredentials + """')
+                        }
+                        branch('""" + data.branch + """')
+                    }
+                }
+                scriptPath('""" + data.scriptPath + """')
+            }
+        }
+        logRotator {
+            daysToKeep(""" + data.logRotatorDaysToKeep + """)
+            numToKeep(""" + data.logRotatorNumToKeep + """)
+        }
     }
-    configure{
-        it / 'properties' /'org.csanchez.jenkins.plugins.kubernetes.KubernetesFolderProperty'(plugin:"kubernetes@1.19.0") {
-            'permittedClouds' {
-                'string' '<% print buildCloud' %>
+    """
+    return template
+}
+
+def folderTemplate(data) {
+    def template = """
+    folder('""" + data.folderName + """'){
+        description('""" + data.description + """')
+        authorization{
+            """ + data.permissionsText + """
+        }
+        configure{
+            it / 'properties' /'org.csanchez.jenkins.plugins.kubernetes.KubernetesFolderProperty'(plugin:"kubernetes@1.19.0") {
+                'permittedClouds' {
+                    'string' '""" + data.buildCloud + """'
+                }
             }
         }
     }
+    """
+    return template
 }
-"""
-@Field
-def parameterTemplate = """
-<% print type %>('<% print name %>','<% print defaultValue %>','<% print description %>')
-"""
+
+def parameterTemplate(data) {
+    def template = """
+    """ + data.type + """('""" + data.name + """','""" + data.defaultValue + """','""" + data.description + """')
+    """
+    return template
+}
 
 return this;
