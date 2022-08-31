@@ -221,7 +221,7 @@ def buildLists (data){
     if (data.buildClouds){
         def cloudArray = []
         for (buildCloud in data.buildClouds){
-            def buildCloudString = northstarTemplate.buildCloudTemplate(buildCloud)
+            def buildCloudString = northstarTemplates.buildCloudTemplate(buildCloud)
             cloudArray.add(buildCloudString)
         }
         data.buildCloudsText = cloudArray.join('\n')
@@ -230,7 +230,7 @@ def buildLists (data){
     else if (data.permissions){
         def permissionsArray = []
         for (permission in data.permissions){
-            def permissionString = northstarTemplate.permissionTemplate(permission)
+            def permissionString = northstarTemplates.permissionTemplate(permission)
             permissionsArray.add(permissionString)
         }
         data.permissionsText = permissionsArray.join('\n')
