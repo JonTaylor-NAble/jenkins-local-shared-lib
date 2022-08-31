@@ -3,7 +3,7 @@
 // Library: 
 //          This library includes a collection of methods used in NorthStar pipelines, methods can be called by invoking northstar.<methodname>([parameters])
 //          Each method should be commented with it's expected purpose, inputs, outputs, and plugin dependencies at the top level within the method.
-
+import com.cloudbees.groovy.cps.NonCPS
 
 boolean checkForJenkinsMasterUpdates(planFilePath){
 
@@ -103,6 +103,7 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
     return enhancedWarning;
 }
 
+@NonCPS
 String getSeedJobDSL(yamlPath){
 
 // Function to build seed job DSL from template, this function can be called as part of a pipeline to generate Job DSL scripts from 
