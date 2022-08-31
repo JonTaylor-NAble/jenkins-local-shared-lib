@@ -157,7 +157,7 @@ String getSeedJobDSL(yamlPath){
         for (repo in data.repos){
             repoData = populateRepoDefaults(repo);
             buildLists(repoData);
-            echo(repoData);
+            echo(repoData.toString());
 
             if (repoData.validity){
                 def dslScript = buildTemplate(repoData);
