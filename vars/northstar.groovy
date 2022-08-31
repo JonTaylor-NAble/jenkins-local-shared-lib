@@ -180,6 +180,7 @@ def buildTemplate(data){
     def engine = new groovy.text.GStringTemplateEngine()
 
     data.properties.each { prop, val ->
+        echo (prop + ", val = " + val)
         if (!(val instanceof String)){
             val = '';
         }
