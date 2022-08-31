@@ -235,6 +235,7 @@ def buildLists (data){
     else if (data.permissions){
         def permissionsArray = []
         for (permission in data.permissions){
+            echo(permission.toString())
             def permissionString = northstarTemplates.permissionTemplate(permission)
             permissionsArray.add(permissionString)
         }
