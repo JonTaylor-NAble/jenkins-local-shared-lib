@@ -178,7 +178,7 @@ String getSeedJobDSL(yamlPath){
 def buildTemplate(data){
 
     def engine = new groovy.text.GStringTemplateEngine()
-    echo(data)
+    echo(data.toString())
     def template
 
     if (data.type == 'multibranchPipelineJob'){
