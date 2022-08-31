@@ -103,7 +103,7 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
     return enhancedWarning;
 }
 
-
+@NonCPS
 String getSeedJobDSL(yamlPath){
 
 // Function to build seed job DSL from template, this function can be called as part of a pipeline to generate Job DSL scripts from 
