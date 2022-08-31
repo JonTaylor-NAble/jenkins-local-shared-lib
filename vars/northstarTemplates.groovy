@@ -108,9 +108,7 @@ def folderTemplate(data) {
 }
 
 def parameterTemplate(data) {
-    def template = """
-    """ + data.type + """('""" + data.name + """','""" + data.defaultValue + """','""" + data.description + """')
-    """
+    def template = data.type + "('" + data.name + "','" + data.defaultValue + "','" + data.description + "')"
     return template
 }
 
