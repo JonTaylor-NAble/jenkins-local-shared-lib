@@ -155,12 +155,12 @@ String getSeedJobDSL(yamlPath){
         def data = readYaml file: repoList.path;
 
         for (folderData in data.folders){
-            
+
             folderData.validity = true;
             buildLists(folderData);
 
             if (folderData.validity){
-                def dslScript = buildTemplate(folderData);
+                def dslScript = buildFolderTemplate(folderData);
                 jobDefinitions.add(dslScript);
             } else {
                 //Skip over invalid repo entries, log issue to console output
@@ -197,14 +197,18 @@ def buildTemplate(data){
         template = northstarTemplates.multibranchTemplate(data)
     } else if (data.type == 'pipelineJob'){
         template = northstarTemplates.pipelineTemplate(data)
-    } else if (data.type == 'folder'){
-        template = northstarTemplates.folderTemplate(data)
     } else {
         return null;
     }
 
     return template
 } 
+
+def buildFolderTemplate(data){
+
+    template = northstarTemplates.folderTemplate(data)
+    return template;
+}
 
 def buildLists (data){
 
