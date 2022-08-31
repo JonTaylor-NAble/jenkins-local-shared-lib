@@ -177,7 +177,7 @@ String getSeedJobDSL(yamlPath){
 @NonCPS
 def buildTemplate(data){
 
-    def engine = new groovy.text.SimpleTemplateEngine()
+    def engine = new groovy.text.GStringTemplateEngine()
 
     data.properties.each { prop, val ->
         if (!(val instanceof String)){
@@ -204,6 +204,8 @@ def buildTemplate(data){
 
 @NonCPS
 def buildLists (data){
+
+    def engine = new groovy.text.GStringTemplateEngine()
 
     if (data.parameters){
         def parametersArray = [];
