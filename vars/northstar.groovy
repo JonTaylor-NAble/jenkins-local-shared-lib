@@ -215,6 +215,8 @@ def buildLists (data){
             parametersArray.add(parameterString);
         }
         data.parametersText = parametersArray.join('\n')
+    } else {
+        data.parametersText = '';
     }
 
     return data;
