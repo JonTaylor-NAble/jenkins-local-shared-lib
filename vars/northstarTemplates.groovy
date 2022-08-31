@@ -3,15 +3,15 @@ import groovy.transform.Field
 
 @Field
 def multibranchTemplate = """
-multibranchPipelineJob('$pipelineName') {
+multibranchPipelineJob('<% print pipelineName %>') {
     branchSources {
             branchSource {
                 source {
                     github {
-                        id('$pipelineName')
-                        repoOwner('$repoOwner')
-                        repository('$repository')
-                        credentialsId($githubCredentials)
+                        id('<% print pipelineName %>')
+                        repoOwner('<% print repoOwner %>')
+                        repository('<% print repository %>')
+                        credentialsId(<% print githubCredentials %>)
                         buildOriginBranch(true)
                         buildOriginPRHead(true)
                         repositoryUrl('')
@@ -32,26 +32,26 @@ multibranchPipelineJob('$pipelineName') {
     }
     orphanedItemStrategy {
         discardOldItems {
-        daysToKeep($orphanedItemStrategyDaysToKeep)
-        numToKeep($orphanedItemStrategyNumToKeep)
+        daysToKeep(<% print orphanedItemStrategyDaysToKeep %>)
+        numToKeep(<% print orphanedItemStrategyNumToKeep %>)
         }
     }
     factory {
         workflowBranchProjectFactory {
-        scriptPath($scriptPath)
+        scriptPath(<% print scriptPath %>)
         }
     }
     configure {
         def traits = it / sources / data / 'jenkins.branch.BranchSource' / source / traits
         traits << 'org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait' {
-            strategyId($branchDiscoveryTraitStrategyId) // Enable support for discovering github branches on this repo
+            strategyId(<% print branchDiscoveryTraitStrategyId %>) // Enable support for discovering github branches on this repo
         }
         traits << 'org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait' {
-            strategyId($repo.originPullRequestTraitStrategyId) // Enable support for discovering PullRequests to this github repo
+            strategyId(<% print repo.originPullRequestTraitStrategyId %>) // Enable support for discovering PullRequests to this github repo
         }
         traits << 'jenkins.plugins.git.traits.CleanBeforeCheckoutTrait' {
             extension(class: 'hudson.plugins.git.extensions.impl.CleanBeforeCheckout') {
-                deleteUntrackedNestedRepositories($deleteUntrackedNestedRepositories)
+                deleteUntrackedNestedRepositories(<% print deleteUntrackedNestedRepositories %>)
             }
         }
     }
@@ -59,41 +59,41 @@ multibranchPipelineJob('$pipelineName') {
 """
 @Field
 def pipelineTemplate = """
-pipelineJob('$pipelineName'){
+pipelineJob('<% print pipelineName %>'){
     parameters{
-        $parametersText
+        <% print parametersText %>
     }
     definition{
         cpsScm{
             scm{
                 git{
                     remote{
-                        github('$repoOwner/$repoName', 'https')
-                        credentials('$githubCredentials')
+                        github('<% print repoOwner %>/<% print repoName %>', 'https')
+                        credentials('<% print githubCredentials')
                     }
-                    branch('$branch')
+                    branch('<% print branch %>')
                 }
             }
-            scriptPath('$scriptPath')
+            scriptPath('<% print scriptPath %>')
         }
     }
     logRotator {
-        daysToKeep($logRotatorDaysToKeep)
-        numToKeep($logRotatorNumToKeep)
+        daysToKeep(<% print logRotatorDaysToKeep %>)
+        numToKeep(<% print logRotatorNumToKeep %>)
     }
 }
 """
 @Field
 def folderTemplate = """
-folder('$folderName'){
-    description('$description')
+folder('<% print folderName %>'){
+    description('<% print description %>')
     authorization{
-        $permissionsText
+        <% print permissionsText %>
     }
     configure{
         it / 'properties' /'org.csanchez.jenkins.plugins.kubernetes.KubernetesFolderProperty'(plugin:"kubernetes@1.19.0") {
             'permittedClouds' {
-                'string' '$buildCloud'
+                'string' '<% print buildCloud' %>
             }
         }
     }
@@ -101,7 +101,7 @@ folder('$folderName'){
 """
 @Field
 def parameterTemplate = """
-$type('$name','$defaultValue','$description')
+<% print type %>('<% print name %>','<% print defaultValue %>','<% print description %>')
 """
 
 return this;
