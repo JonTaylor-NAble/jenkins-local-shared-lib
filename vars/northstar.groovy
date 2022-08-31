@@ -119,33 +119,6 @@ String getSeedJobDSL(yamlPath){
 // Returns: 
 //        [String] - returns the DSL script generated for each pipeline defined in the yaml files as a string.
     
-    def engine = new groovy.text.SimpleTemplateEngine()
-
-    def buildTemplate = { data ->
-
-        data.properties.each { prop, val ->
-            if (!(val instanceof String)){
-                val = '';
-            }
-        }
-
-        def template
-
-        if (data.type == 'multibranchPipelineJob'){
-            template = engine.createTemplate(northstarTemplates.multibranchTemplate)
-        } else if (data.type == 'pipelineJob'){
-            template = engine.createTemplate(northstarTemplates.pipelineTemplate)
-        } else if (data.type == 'folder'){
-            template = engine.createTemplate(northstarTemplates.folderTemplate)
-        } else {
-            return null;
-        }
-
-        template.make(data).toString();
-
-        return template
-    } 
-
     //Default values for optional parameters - if these keys aren't present in the yaml definition the values here will be used instead.
     def defaultValues = [
         orphanedItemStrategyDaysToKeep: 30,
@@ -176,19 +149,6 @@ String getSeedJobDSL(yamlPath){
         return repo;
     }
 
-    def buildLists = { data ->
-
-        if (data.parameters){
-            def parametersArray = [];
-            for (parameter in data.parameters){
-                def parameterString = engine.createTemplate(northstarTemplates.parameterTemplate).make(parameter).toString();
-                parametersArray.add(parameterString);
-            }
-            data.parametersText = parametersArray.join('\n')
-        }
-
-    }
-
     //Search for yaml files matching input file path, read the yaml files and generate DSL script for each defined repo in each file.
     def repoLists = findFiles(glob: yamlPath);
     def jobDefinitions = []; 
@@ -214,6 +174,50 @@ String getSeedJobDSL(yamlPath){
     //Concatenate all generated Job DSL scripts into a single script and return.
     dslScript = jobDefinitions.join('')
     return dslScript
+}
+
+@NonCPS
+def buildTemplate(data){
+
+    def engine = new groovy.text.SimpleTemplateEngine()
+
+    data.properties.each { prop, val ->
+        if (!(val instanceof String)){
+            val = '';
+        }
+    }
+
+    def template
+
+    if (data.type == 'multibranchPipelineJob'){
+        template = engine.createTemplate(northstarTemplates.multibranchTemplate)
+    } else if (data.type == 'pipelineJob'){
+        template = engine.createTemplate(northstarTemplates.pipelineTemplate)
+    } else if (data.type == 'folder'){
+        template = engine.createTemplate(northstarTemplates.folderTemplate)
+    } else {
+        return null;
+    }
+
+    template.make(data).toString();
+
+    return template
+} 
+
+@NonCPS
+def buildLists (data){
+
+    if (data.parameters){
+        def parametersArray = [];
+        for (parameter in data.parameters){
+            def parameterString = engine.createTemplate(northstarTemplates.parameterTemplate).make(parameter).toString();
+            parametersArray.add(parameterString);
+        }
+        data.parametersText = parametersArray.join('\n')
+    }
+
+    return data;
+
 }
 
 //If this library is not loaded 'implicitly', uncomment the line below:
