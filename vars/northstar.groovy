@@ -118,68 +118,24 @@ String getSeedJobDSL(yamlPath){
 //                            eg. 'seed/jobs/**/repoList.yaml'  
 // Returns: 
 //        [String] - returns the DSL script generated for each pipeline defined in the yaml files as a string.
+    
+    def engine = new groovy.text.SimpleTemplateEngine()
 
-    def buildTemplate = { repo ->
+    def buildTemplate = { data ->
 
-        //Core template to define the pipeline, hydrated by values from passed in 'repo' Map
-        def template = """
-        multibranchPipelineJob('""" + repo.pipelineName + """') {
-            branchSources {
-                    branchSource {
-                        source {
-                            github {
-                                id('""" + repo.pipelineName + """')
-                                repoOwner('""" + repo.repoOwner + """')
-                                repository('""" + repo.repository + """')
-                                credentialsId('github-account')
-                                buildOriginBranch(true)
-                                buildOriginPRHead(true)
-                                repositoryUrl('')
-                                configuredByUrl(false)
-                            }
-                        }
-                        strategy {
-                        allBranchesSame {
-                                props {
-                                    suppressAutomaticTriggering {
-                                        strategy('INDEXING')
-                                        triggeredBranchesRegex('.*')
-                                    }
-                                }
-                            }
-                        }
-                    }
-            }
+        def template
 
-            orphanedItemStrategy {
-                discardOldItems {
-                daysToKeep(""" + repo.orphanedItemStrategyDaysToKeep + """)
-                numToKeep(""" + repo.orphanedItemStrategyNumToKeep + """)
-                }
-            }
-
-            factory {
-                workflowBranchProjectFactory {
-                scriptPath('""" + repo.scriptPath + """')
-                }
-            }
-
-            configure {
-                def traits = it / sources / data / 'jenkins.branch.BranchSource' / source / traits
-                traits << 'org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait' {
-                strategyId(""" + repo.branchDiscoveryTraitStrategyId + """) // Enable support for discovering github branches on this repo
-                }
-                traits << 'org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait' {
-                strategyId(""" + repo.originPullRequestTraitStrategyId + """) // Enable support for discovering PullRequests to this github repo
-                }
-                traits << 'jenkins.plugins.git.traits.CleanBeforeCheckoutTrait' {
-                extension(class: 'hudson.plugins.git.extensions.impl.CleanBeforeCheckout') {
-                    deleteUntrackedNestedRepositories(""" + repo.deleteUntrackedNestedRepositories + """)
-                }
-                }
-            }
+        if (data.type == 'multibranchPipelineJob'){
+            template = engine.createTemplate(northstarTemplates.multibranchTemplate)
+        } else if (data.type == 'pipelineJob'){
+            template = engine.createTemplate(northstarTemplates.pipelineTemplate)
+        } else if (data.type = 'folder'){
+            template = engine.createTemplate(northstarTemplates.folderTemplate)
+        } else {
+            return null;
         }
-        """
+
+        template.make(data)
 
         return template
     } 
@@ -190,16 +146,18 @@ String getSeedJobDSL(yamlPath){
         orphanedItemStrategyNumToKeep: 30,
         branchDiscoveryTraitStrategyId: 1,
         originPullRequestTraitStrategyId: 2,
-        deleteUntrackedNestedRepositories: true
+        deleteUntrackedNestedRepositories: true,
+        logRotatorDaysToKeep: 7,
+        logRotatorNumToKeep: 7
     ]
 
     def populateRepoDefaults = { repo ->
         
         //Check for minimum required values of pipelineName, repoOwner, repository and scriptPath - if any are missing set validity of repo to false for error handling.
         repo.validity = true;
-        if (!repo.pipelineName || !repo.repoOwner || !repo.repository || !repo.scriptPath){
+        if (!repo.pipelineName || !repo.repoOwner || !repo.repository || !repo.scriptPath || !repo.type || !repo.githubCredentials){
             repo.validity = false;
-            repo.validityReason = 'Missing required parameters pipelineName, repoOwner, repository, scriptPath'
+            repo.validityReason = 'Missing required parameters type, githubCredentials, pipelineName, repoOwner, repository, scriptPath'
         }
 
         //Replace unspecified parameters with values from default values map
@@ -212,6 +170,19 @@ String getSeedJobDSL(yamlPath){
         return repo;
     }
 
+    def buildLists = { data ->
+
+        if (data.parameters){
+            def parametersArray = [];
+            for (parameter in data.parameters){
+                def parameterString = engine.createTemplate(northstarTemplates.parameterTemplate).make(parameter)
+                parametersArray.add(parameterString);
+            }
+            data.parametersText = parametersArray.join('\n')
+        }
+
+    }
+
     //Search for yaml files matching input file path, read the yaml files and generate DSL script for each defined repo in each file.
     def repoLists = findFiles(glob: yamlPath);
     def jobDefinitions = []; 
@@ -220,13 +191,14 @@ String getSeedJobDSL(yamlPath){
         def data = readYaml file: repoList.path;
         for (repo in data.repos){
             repoData = populateRepoDefaults(repo);
+            buildLists(repoData);
 
             if (repoData.validity){
                 def dslScript = buildTemplate(repoData);
                 jobDefinitions.add(dslScript);
             } else {
                 //Skip over invalid repo entries, log issue to console output
-                sh 'echo "' + repoList.path + " invalid - " + repoData.validityReason + '"';
+                echo(repoList.path + " invalid - " + repoData.validityReason);
                 continue;
             }
         }  
