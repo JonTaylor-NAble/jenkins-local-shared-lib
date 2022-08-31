@@ -198,7 +198,7 @@ def buildTemplate(data){
         return null;
     }
 
-    template.make(data).toString();
+    template = template.make(data).toString();
 
     return template
 } 
