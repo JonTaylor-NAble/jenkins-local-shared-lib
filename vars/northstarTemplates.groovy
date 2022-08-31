@@ -11,7 +11,7 @@ multibranchPipelineJob('<% print pipelineName %>') {
                         id('<% print pipelineName %>')
                         repoOwner('<% print repoOwner %>')
                         repository('<% print repository %>')
-                        credentialsId(<% print githubCredentials %>)
+                        credentialsId('<% print githubCredentials %>')
                         buildOriginBranch(true)
                         buildOriginPRHead(true)
                         repositoryUrl('')
@@ -69,7 +69,7 @@ pipelineJob('<% print pipelineName %>'){
                 git{
                     remote{
                         github('<% print repoOwner %>/<% print repoName %>', 'https')
-                        credentials('<% print githubCredentials')
+                        credentials('<% print githubCredentials %>')
                     }
                     branch('<% print branch %>')
                 }
