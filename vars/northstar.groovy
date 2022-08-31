@@ -128,9 +128,9 @@ String getSeedJobDSL(yamlPath){
         if (data.type == 'multibranchPipelineJob'){
             template = engine.createTemplate(northstarTemplates.multibranchTemplate)
         } else if (data.type == 'pipelineJob'){
-            template = engine.createTemplate(northstarTemplates.pipelineTemplate)
+            template == engine.createTemplate(northstarTemplates.pipelineTemplate)
         } else if (data.type = 'folder'){
-            template = engine.createTemplate(northstarTemplates.folderTemplate)
+            template == engine.createTemplate(northstarTemplates.folderTemplate)
         } else {
             return null;
         }
