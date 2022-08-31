@@ -140,6 +140,7 @@ def permissionTemplate(data){
     permissionAccessLevels[data.accessLevel] +
     """])
     """
+    return template;
 }
 
 return this;
