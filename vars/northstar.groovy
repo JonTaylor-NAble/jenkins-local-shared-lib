@@ -103,7 +103,6 @@ boolean checkForJenkinsMasterUpdates(planFilePath){
     return enhancedWarning;
 }
 
-@NonCPS
 String getSeedJobDSL(yamlPath){
 
 // Function to build seed job DSL from template, this function can be called as part of a pipeline to generate Job DSL scripts from 
@@ -141,7 +140,7 @@ String getSeedJobDSL(yamlPath){
             return null;
         }
 
-        template.make(data)
+        template.make(data).toString();
 
         return template
     } 
@@ -181,7 +180,7 @@ String getSeedJobDSL(yamlPath){
         if (data.parameters){
             def parametersArray = [];
             for (parameter in data.parameters){
-                def parameterString = engine.createTemplate(northstarTemplates.parameterTemplate).make(parameter)
+                def parameterString = engine.createTemplate(northstarTemplates.parameterTemplate).make(parameter).toString();
                 parametersArray.add(parameterString);
             }
             data.parametersText = parametersArray.join('\n')
