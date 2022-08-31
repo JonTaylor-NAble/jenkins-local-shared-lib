@@ -124,7 +124,7 @@ String getSeedJobDSL(yamlPath){
     def buildTemplate = { data ->
 
         data.properties.each { prop, val ->
-            if (val !instanceof String){
+            if (!(val instanceof String)){
                 val = '';
             }
         }
