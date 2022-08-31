@@ -117,7 +117,9 @@ def buildCloudTemplate(cloud) {
     return template
 }
 
-def permissionAccessLevels = [
+def permissionTemplate(data){
+
+    def permissionAccessLevels = [
     "readOnly": """
                 'hudson.model.Item.Read',
                 'hudson.model.View.Read'
@@ -132,9 +134,8 @@ def permissionAccessLevels = [
                 'hudson.model.Run.Replay',
                 'hudson.model.View.Read'
                 """
-]
-
-def permissionTemplate(data){
+    ]
+    
     def template = """
     permissions('""" + data.roleName + """', [ """ +
     permissionAccessLevels[data.accessLevel] +
