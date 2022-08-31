@@ -37,7 +37,7 @@ def multibranchTemplate(data) {
         }
         factory {
             workflowBranchProjectFactory {
-            scriptPath(""" + data.scriptPath + """)
+            scriptPath('""" + data.scriptPath + """')
             }
         }
         configure {
