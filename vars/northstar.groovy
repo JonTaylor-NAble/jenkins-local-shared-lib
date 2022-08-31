@@ -175,8 +175,6 @@ String getSeedJobDSL(yamlPath){
 
 def buildTemplate(data){
 
-    echo(data.toString())
-
     def template
 
     if (data.type == 'multibranchPipelineJob'){
