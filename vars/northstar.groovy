@@ -155,7 +155,8 @@ String getSeedJobDSL(yamlPath){
         def data = readYaml file: repoList.path;
 
         for (folderData in data.folders){
-
+            
+            folderData.validity = true;
             buildLists(folderData);
 
             if (folderData.validity){
