@@ -215,8 +215,19 @@ def buildLists (data){
     if (data.parameters){
         def parametersArray = [];
         for (parameter in data.parameters){
-            def parameterString = northstarTemplates.parameterTemplate(parameter);
-            parametersArray.add(parameterString);
+            if (parameter.type == "stringParam" || paramter.type == "textParam"){
+                def parameterString = northstarTemplates.stringParameterTemplate(parameter);
+                parametersArray.add(parameterString);
+            } else if (parameter.type == "booleanParam"){
+                def parameterString = northstarTemplates.booleanParameterTemplate(parameter);
+                parametersArray.add(parameterString);
+            } else if (parameter.type == "choiceParam"){
+                def parameterString = northstarTemplates.choiceParameterTemplate(parameter);
+                parametersArray.add(parameterString);
+            } else {
+                echo('Unsupported parameter type in job definition for ' + data.pipelineName + ': ' + parameter.type + ' - this parameter will not be included.')
+            }
+
         }
         data.parametersText = parametersArray.join('\n')
     } else {

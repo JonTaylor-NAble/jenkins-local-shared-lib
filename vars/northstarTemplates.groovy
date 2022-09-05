@@ -107,8 +107,18 @@ def folderTemplate(data) {
     return template
 }
 
-def parameterTemplate(data) {
+def stringParameterTemplate(data) {
     def template = data.type + "('" + data.name + "','" + data.defaultValue + "','" + data.description + "')"
+    return template
+}
+
+def booleanParameterTemplate(data) {
+    def template = data.type + "('" + data.name + "'," + data.defaultValue + ")"
+    return template
+}
+
+def choiceParameterTemplate(data) {
+    def template = data.type + "('" + data.name + "',['" + parameter.choices.join("','") + "'])"
     return template
 }
 
