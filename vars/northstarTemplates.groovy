@@ -113,7 +113,7 @@ def stringParameterTemplate(data) {
 }
 
 def booleanParameterTemplate(data) {
-    def template = data.type + "('" + data.name + "'," + data.defaultValue + ")"
+    def template = data.type + "('" + data.name + "'," + data.defaultValue + ",'" + data.description + "')"
     return template
 }
 
