@@ -215,7 +215,7 @@ def buildLists (data){
     if (data.parameters){
         def parametersArray = [];
         for (parameter in data.parameters){
-            if (parameter.type == "stringParam" || paramter.type == "textParam"){
+            if (parameter.type == "stringParam" || parameter.type == "textParam"){
                 def parameterString = northstarTemplates.stringParameterTemplate(parameter);
                 parametersArray.add(parameterString);
             } else if (parameter.type == "booleanParam"){
