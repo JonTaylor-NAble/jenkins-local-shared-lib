@@ -118,7 +118,7 @@ def booleanParameterTemplate(data) {
 }
 
 def choiceParameterTemplate(data) {
-    def template = data.type + "('" + data.name + "',['" + parameter.choices.join("','") + "'],'" + data.description + "')"
+    def template = data.type + "('" + data.name + "',['" + data.choices.join("','") + "'],'" + data.description + "')"
     return template
 }
 
