@@ -8,8 +8,10 @@ def multibranchTemplate(data) {
     //Template for MultbranchPipelineJobs
     def template = """
     multibranchPipelineJob('""" + data.pipelineName + """') {
-        parameters{
-            """ + data.parametersText + """
+        properties{
+            parameters{
+                """ + data.parametersText + """
+            }
         }
         branchSources {
                 branchSource {
