@@ -1,8 +1,16 @@
 #!/usr/bin/env groovy
 
+// Library: 
+//          This library includes a collection of templates used in northstar.getSeedJobDSL()
+//          These templates form the backbone of the seed jobs and require data parsed from the seed job yaml.
+
 def multibranchTemplate(data) {
+    //Template for MultbranchPipelineJobs
     def template = """
     multibranchPipelineJob('""" + data.pipelineName + """') {
+        parameters{
+            """ + data.parametersText + """
+        }
         branchSources {
                 branchSource {
                     source {
@@ -60,6 +68,7 @@ def multibranchTemplate(data) {
 }
 
 def pipelineTemplate(data) {
+    //Template for PipelineJobs
     def template = """
     pipelineJob('""" + data.pipelineName + """'){
         parameters{
@@ -89,6 +98,7 @@ def pipelineTemplate(data) {
 }
 
 def folderTemplate(data) {
+    //Template for Folder objects
     def template = """
     folder('""" + data.folderName + """'){
         description('""" + data.description + """')
@@ -108,28 +118,34 @@ def folderTemplate(data) {
 }
 
 def stringParameterTemplate(data) {
+    //Sub template for string & text parameters
     def template = data.type + "('" + data.name + "','" + data.defaultValue + "','" + data.description + "')"
     return template
 }
 
 def booleanParameterTemplate(data) {
+    //Sub template for boolean parameters
     def template = data.type + "('" + data.name + "'," + data.defaultValue + ",'" + data.description + "')"
     return template
 }
 
 def choiceParameterTemplate(data) {
+    //Sub template for choice parameters
     def template = data.type + "('" + data.name + "',['" + data.choices.join("','") + "'],'" + data.description + "')"
     return template
 }
 
 def buildCloudTemplate(cloud) {
+    //Sub template for permitted build clouds.
     def template = "'string' '" + cloud + "'"
     return template
 }
 
 def permissionTemplate(data){
+    //Sub template for folder permissions
 
     def permissionAccessLevels = [
+    //User friendly accessLevel values are converted to their actual permission lists here
     "readOnly": """
                 'hudson.model.Item.Read',
                 'hudson.model.View.Read'
